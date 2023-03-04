@@ -20,7 +20,7 @@ app.get('/', (req,res) => {
 })
 
 app.post('/webhook', (req, res) => {
-    res.send(req.body.events)
+    console.log(req.body.events)
 })
 
 function reply(reply_token) {
