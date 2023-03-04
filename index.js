@@ -1,6 +1,5 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-//var jsonParser = bodyParser.json()
 var dotenv = require('dotenv');
 var cors = require('cors');
 
@@ -10,7 +9,8 @@ dotenv.config();
 var app = express()
 
 app.use(cors());
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(express.json())
+app.use(bodyParser.urlencoded({extended: true}))
 
 app.listen(process.env.PORT || 8080, console.log('server is running'));
 
@@ -20,10 +20,14 @@ app.get('/', (req,res) => {
 })
 
 app.post('/webhook', (req, res) => {
-    console.log(req.body.events)
+    let reply_token = req.body.events[0].replyToken
+    let msg = req.body.events[0].message.text
+    
+    reply(reply_token, msg)
+    res.sendStatus(200)
 })
 
-function reply(reply_token) {
+function reply(reply_token, msg) {
 
     const ChannelaccessToken = process.env.SECERT_CH_ID
 
@@ -31,12 +35,8 @@ function reply(reply_token) {
         replyToken: reply_token,
         messages: [{
             type: 'text',
-            text: 'Hello'
-        },
-        {
-            type: 'text',
-            text: 'How are you?'
-        }]
+            text: msg
+        },]
     })
 
     axios.post(`https://api.line.me/v2/bot/message/reply`, body, {
@@ -45,12 +45,4 @@ function reply(reply_token) {
             'Content-Type': 'application/json'
         }
     })
-
-    // request.post({
-    //     url: 'https://api.line.me/v2/bot/message/reply',
-    //     headers: headers,
-    //     body: body
-    // }, (err, res, body) => {
-    //     console.log('status = ' + res.statusCode);
-    // });
 }
