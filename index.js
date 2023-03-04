@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var jsonParser = bodyParser.json()
+//var jsonParser = bodyParser.json()
 var dotenv = require('dotenv');
 var cors = require('cors');
 
@@ -19,6 +19,40 @@ app.get('/', (req,res) => {
     res.send('เค้าว่าสายตามันหลอกกันไม่ได้ 👀')
 })
 
-app.post('/webhook', (req,res) => {
-    res.send(req.body.events[0])
+app.post('/webhook', (req, res) => {
+    let reply_token = req.body.events[0].replyToken
+    reply(reply_token)
+    res.sendStatus(200)
 })
+
+function reply(reply_token) {
+
+    const ChannelaccessToken = process.env.SECERT_CH_ID
+
+    let body = JSON.stringify({
+        replyToken: reply_token,
+        messages: [{
+            type: 'text',
+            text: 'Hello'
+        },
+        {
+            type: 'text',
+            text: 'How are you?'
+        }]
+    })
+
+    axios.post(`https://api.line.me/v2/bot/message/reply`, body, {
+        headers: {
+            Authorization: `Bearer ${ChannelaccessToken}`,
+            'Content-Type': 'application/json'
+        }
+    })
+
+    // request.post({
+    //     url: 'https://api.line.me/v2/bot/message/reply',
+    //     headers: headers,
+    //     body: body
+    // }, (err, res, body) => {
+    //     console.log('status = ' + res.statusCode);
+    // });
+}
